@@ -14,12 +14,22 @@ public class EnemyController : MonoBehaviour
     private GameObject deathVFX;
 
     [Inject]
-    private Player player;
+    private readonly PlayerController playerController;
+
+    [SerializeField, ShowOnly]
+    private float moveSpeed = .5f;
+
+    private Transform playerTransform;
+    private CharacterController controller;
 
     void Start()
     {
         this.character = ScriptableObject.Instantiate(this.character);
         this.character.Init();
+
+        Debug.Log(playerController);
+        this.controller = GetComponent<CharacterController>();
+        this.playerTransform = playerController.GetComponent<Transform>();
     }
 
     void Update()
@@ -30,5 +40,13 @@ public class EnemyController : MonoBehaviour
             SceneAudioManager.instance.PlayByName("EnemyDeath");
             Destroy(gameObject);
         }
+
+        FollowPlayer();
+    }
+
+    private void FollowPlayer()
+    {
+        var direction = (playerTransform.position - transform.position).normalized;
+        controller.Move(direction * moveSpeed * Time.fixedDeltaTime);
     }
 }
