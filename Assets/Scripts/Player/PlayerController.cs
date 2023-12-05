@@ -151,12 +151,6 @@ public class PlayerController : MonoBehaviour
     private void Move()
     {
         controller.Move(moveDirection * horizontalSpeed * Time.fixedDeltaTime + Vector3.up * verticalSpeed * Time.fixedDeltaTime);
-        if (this.isControlled)
-        {
-            // mainCamera.transform.Translate(moveDirection * horizontalSpeed * Time.fixedDeltaTime);
-            // this.cinemachineFreeLook.transform.Translate(moveDirection * horizontalSpeed * Time.fixedDeltaTime);
-            // mainCamera.transform.LookAt(this.cinemachineFreeLook.LookAt.transform.position, mainCamera.transform.up);
-        }
     }
 
     private void CalculateSpeed()
