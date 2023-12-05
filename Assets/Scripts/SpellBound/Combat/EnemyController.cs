@@ -15,8 +15,10 @@ public class EnemyController : MonoBehaviour
 
     [Inject]
     private readonly PlayerController playerController;
+    [Inject]
+    private readonly CollisionGroups collisionGroups;
 
-    [SerializeField, ShowOnly]
+    [SerializeField]
     private float moveSpeed = .5f;
 
     private Transform playerTransform;
@@ -27,7 +29,6 @@ public class EnemyController : MonoBehaviour
         this.character = ScriptableObject.Instantiate(this.character);
         this.character.Init();
 
-        Debug.Log(playerController);
         this.controller = GetComponent<CharacterController>();
         this.playerTransform = playerController.GetComponent<Transform>();
     }
@@ -41,12 +42,30 @@ public class EnemyController : MonoBehaviour
             Destroy(gameObject);
         }
 
+    }
+
+    void FixedUpdate()
+    {
         FollowPlayer();
     }
 
     private void FollowPlayer()
     {
         var direction = (playerTransform.position - transform.position).normalized;
-        controller.Move(direction * moveSpeed * Time.fixedDeltaTime);
+        var g = this.groundCheck() ? Vector3.zero : Vector3.down * 15;
+        controller.Move(direction * moveSpeed * Time.fixedDeltaTime + g * Time.fixedDeltaTime);
+        transform.LookAt(this.playerController.transform);
+    }
+
+    private bool groundCheck()
+    {
+        Vector3 spherePosition = new Vector3(transform.position.x, this.controller.bounds.min.y, transform.position.z);
+        var checkResult = Physics.Raycast(
+            spherePosition,
+            Vector3.down,
+            0.2f,
+            this.collisionGroups.obstacleMask,
+            QueryTriggerInteraction.Ignore);
+        return checkResult;
     }
 }

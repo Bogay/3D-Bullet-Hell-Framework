@@ -63,6 +63,7 @@ namespace SpellBound.Combat
 
                 if (this.owner.MP < this.Setting.Cost)
                 {
+                    await UniTask.Yield();
                     continue;
                 }
 
