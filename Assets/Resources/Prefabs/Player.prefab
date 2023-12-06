@@ -1288,7 +1288,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc5cbc71ff37a814eaec6d1b2d31598a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distance: 2
+  velocity: 0
+  duration: 0
   <skillTriggerSetting>k__BackingField:
     <CooldownSeconds>k__BackingField: 0.5
     <Cost>k__BackingField: 3
@@ -1768,7 +1769,7 @@ Transform:
   - {fileID: 5387468584474600370}
   - {fileID: 2446875767817010908}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &3374901468320808717
 CharacterController:
@@ -1827,6 +1828,7 @@ MonoBehaviour:
   groundLayers:
     serializedVersion: 2
     m_Bits: 1048576
+  cinemachineFreeLook: {fileID: 0}
 --- !u!114 &4771106793441940983
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2730,7 +2732,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7803960351707083769
 Transform:
   m_ObjectHideFlags: 0
