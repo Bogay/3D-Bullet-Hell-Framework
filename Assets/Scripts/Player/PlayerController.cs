@@ -29,8 +29,8 @@ public class PlayerController : MonoBehaviour
     private MainWeapon mainWeapon;
     [SerializeField]
     private MainWeapon secondWeapon;
-    [SerializeField]
-    private Dash dash;
+    [field: SerializeField]
+    public Dash dash { get; private set; }
 
     [field: SerializeField]
     public Character Character { get; private set; }
