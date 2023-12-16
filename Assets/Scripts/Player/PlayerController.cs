@@ -212,8 +212,8 @@ public class PlayerController : MonoBehaviour
 
     public async UniTaskVoid Dash(
         Vector3 direction,
-         float duration = 0.1f,
-          CancellationToken cancellationToken = default)
+        float duration = 0.1f,
+        CancellationToken cancellationToken = default)
     {
         direction.y = 0;
 
