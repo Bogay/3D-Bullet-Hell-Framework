@@ -406,6 +406,7 @@ GameObject:
   - component: {fileID: 2740787173124369235}
   - component: {fileID: 3540453565791679608}
   - component: {fileID: 4038338311004685302}
+  - component: {fileID: 7618992537034100897}
   m_Layer: 15
   m_Name: Enemy
   m_TagString: Untagged
@@ -556,6 +557,19 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects:
   - {fileID: 4291059165069099367}
+--- !u!114 &7618992537034100897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4291059165069099367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7284f9ce3a6c4914c8ab2cf8831d27ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualRoot: {fileID: 7774224529331651046}
 --- !u!1 &4533763285190426987
 GameObject:
   m_ObjectHideFlags: 0

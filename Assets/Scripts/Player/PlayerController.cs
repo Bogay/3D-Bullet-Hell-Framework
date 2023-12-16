@@ -29,8 +29,8 @@ public class PlayerController : MonoBehaviour
     private MainWeapon mainWeapon;
     [SerializeField]
     private MainWeapon secondWeapon;
-    [SerializeField]
-    private Dash dash;
+    [field: SerializeField]
+    public Dash dash { get; private set; }
 
     [field: SerializeField]
     public Character Character { get; private set; }
@@ -212,8 +212,8 @@ public class PlayerController : MonoBehaviour
 
     public async UniTaskVoid Dash(
         Vector3 direction,
-         float duration = 0.1f,
-          CancellationToken cancellationToken = default)
+        float duration = 0.1f,
+        CancellationToken cancellationToken = default)
     {
         direction.y = 0;
 

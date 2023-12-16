@@ -16,11 +16,13 @@ namespace SpellBound.Combat
         private IDisposablePublisher<T> publisher;
         private ISubscriber<T> subscriber;
 
+        private readonly object skillArgLock = new object();
         private T skillArg;
         private bool hasSkillArg;
-        private float nextClearTime;
 
         public float TriggerTimer { get; private set; }
+        private CancellationToken upstreamToken;
+        private CancellationTokenSource clearSkillTokenSource;
 
         public SkillTrigger(SkillTriggerSetting setting, Character owner)
         {
@@ -28,62 +30,99 @@ namespace SpellBound.Combat
             this.owner = owner;
             (this.publisher, this.subscriber) = GlobalMessagePipe.CreateEvent<T>();
             this.hasSkillArg = false;
-            this.nextClearTime = float.MaxValue;
             this.TriggerTimer = this.Setting.CooldownSeconds;
         }
 
         public void Start(CancellationToken ct)
         {
-            this.refreshSkillArg(ct).Forget();
+            this.upstreamToken = ct;
             this.triggerTask(ct).Forget();
+            this.AddTo(ct);
         }
 
-        private async UniTaskVoid refreshSkillArg(CancellationToken ct)
+        private async UniTaskVoid clearSkill(float clearTime, int clearFrame, CancellationToken ct)
         {
-            while (!ct.IsCancellationRequested)
+            float startTime = Time.realtimeSinceStartup;
+            await UniTask.DelayFrame(clearFrame, cancellationToken: ct);
+            float elapsedTime = Time.realtimeSinceStartup - startTime;
+            clearTime -= elapsedTime;
+
+            if (clearTime > 0)
             {
-                if (Time.realtimeSinceStartup > this.nextClearTime)
-                {
-                    this.hasSkillArg = false;
-                }
-                await UniTask.Yield();
+                await UniTask.Delay(TimeSpan.FromSeconds(clearTime), cancellationToken: ct);
             }
+
+            lock (this.skillArgLock)
+            {
+                Debug.Log($"clear skill arg. Cooldown: {this.TriggerTimer}");
+                this.hasSkillArg = false;
+            }
+        }
+
+        private bool canCast()
+        {
+            return this.TriggerTimer <= 0f && this.owner.MP >= this.Setting.Cost;
+        }
+
+        private void updateTimer()
+        {
+            this.TriggerTimer = Mathf.Max(this.TriggerTimer - Time.deltaTime, 0f);
         }
 
         private async UniTaskVoid triggerTask(CancellationToken ct)
         {
             while (!ct.IsCancellationRequested)
             {
-                if (this.TriggerTimer > 0f)
+                if (!this.canCast())
                 {
-                    this.TriggerTimer = Mathf.Max(this.TriggerTimer - Time.deltaTime, 0f);
-                    await UniTask.Yield();
+                    this.updateTimer();
+                    await UniTask.NextFrame();
                     continue;
                 }
 
-                if (this.owner.MP < this.Setting.Cost)
+                lock (this.skillArgLock)
                 {
-                    await UniTask.Yield();
-                    continue;
+                    if (this.hasSkillArg)
+                    {
+                        cast();
+                    }
                 }
-
-                if (this.hasSkillArg)
-                {
-                    this.publisher.Publish(this.skillArg);
-                    this.hasSkillArg = false;
-                    this.TriggerTimer = this.Setting.CooldownSeconds;
-                    this.owner.Cast(this.Setting.Cost);
-                }
-                await UniTask.Yield();
+                await UniTask.NextFrame();
             }
+        }
+
+        private void cast()
+        {
+            this.publisher.Publish(this.skillArg);
+            this.hasSkillArg = false;
+            this.TriggerTimer = this.Setting.CooldownSeconds;
+            this.owner.Cast(this.Setting.Cost);
+            this.rotateClearSkillTokenSource();
+        }
+
+        private CancellationTokenSource rotateClearSkillTokenSource()
+        {
+            this.clearSkillTokenSource?.Cancel();
+            this.clearSkillTokenSource = CancellationTokenSource.CreateLinkedTokenSource(this.upstreamToken);
+            return this.clearSkillTokenSource;
         }
 
         public void Trigger(T arg)
         {
-            this.hasSkillArg = true;
-            this.skillArg = arg;
-            // TODO: configurable clear interval
-            this.nextClearTime = Time.realtimeSinceStartup + 0.05f;
+            lock (this.skillArgLock)
+            {
+                this.hasSkillArg = true;
+                this.skillArg = arg;
+
+                var src = this.rotateClearSkillTokenSource();
+                // TODO: configurable clear interval
+                this.clearSkill(0.05f, 2, src.Token).Forget();
+
+                if (this.canCast())
+                {
+                    this.cast();
+                }
+            }
         }
 
         public IDisposable Subscribe(Action<T> handler)
@@ -94,6 +133,7 @@ namespace SpellBound.Combat
         public void Dispose()
         {
             this.publisher?.Dispose();
+            this.clearSkillTokenSource?.Dispose();
         }
     }
 }

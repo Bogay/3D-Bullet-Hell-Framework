@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using SpellBound.Combat;
 using SpellBound.Core;
@@ -24,24 +26,29 @@ public class Dash : MonoBehaviour
     [Inject]
     private readonly Character owner;
 
+    private List<(Action<Vector3>, CancellationToken)> subscribeRequests = new List<(Action<Vector3>, CancellationToken)>();
+
     void Start()
     {
+        var ct = this.GetCancellationTokenOnDestroy();
         this.skillTrigger = new SkillTrigger<Vector3>(
             this.skillTriggerSetting,
             this.owner
         );
+        this.skillTrigger.AddTo(ct);
 
-        var ct = this.GetCancellationTokenOnDestroy();
         this.skillTrigger.Subscribe(fwd =>
         {
-            // var stopsAt = this.playerController.transform.position + fwd * this.distance;
-            // this.playerController.SetPosition(stopsAt);
             this.playerController.Dash(
                 fwd * this.velocity,
                 duration: this.duration,
-                 cancellationToken: ct)
-                 .Forget();
-        });
+                cancellationToken: ct
+            ).Forget();
+        }).AddTo(ct);
+        foreach (var (action, token) in this.subscribeRequests)
+        {
+            this.Subscribe(action).AddTo(token);
+        }
         this.skillTrigger.Start(ct);
     }
 
@@ -50,5 +57,21 @@ public class Dash : MonoBehaviour
         forward.y = 0;
         forward = forward.normalized;
         this.skillTrigger.Trigger(forward);
+    }
+
+    public IDisposable Subscribe(Action<Vector3> action)
+    {
+        return this.skillTrigger.Subscribe(action);
+    }
+
+    public void QueueSubscibe(Action<Vector3> action, CancellationToken ct = default)
+    {
+        if (this.skillTrigger != null)
+        {
+            this.Subscribe(action).AddTo(ct);
+            return;
+        }
+
+        this.subscribeRequests.Add((action, ct));
     }
 }
