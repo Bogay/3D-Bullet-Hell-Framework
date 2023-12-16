@@ -75,6 +75,8 @@ namespace SpellBound.Combat
 
         private IEnumerator shootCoro(Vector3 forward)
         {
+            forward.Normalize();
+
             var go = new GameObject("Bullet");
             go.transform.position = transform.position + forward * distance;
             go.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
