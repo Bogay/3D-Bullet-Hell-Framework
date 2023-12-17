@@ -1,9 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using System.Linq;
+using System;
 
 namespace SpellBound
 {
@@ -13,36 +13,68 @@ namespace SpellBound
         private Transform visualRoot;
 
         private List<Renderer> renderers;
+        private CancellationTokenSource cancelBlinkAllTokenSource = new CancellationTokenSource();
+        private UniTask blinkTask;
+        private readonly object tokenSourceLock = new object();
 
         private void Start()
         {
             this.renderers = visualRoot.GetComponentsInChildren<Renderer>().ToList();
         }
 
-        // void Update()
-        // {
-        //     if (Input.GetKeyDown(KeyCode.B))
-        //     {
-        //         var ct = gameObject.GetCancellationTokenOnDestroy();
-        //         this.blinkAll(ct).Forget();
-        //     }
-        // }
+        private CancellationToken createNewToken(CancellationToken ct)
+        {
+            lock (this.tokenSourceLock)
+            {
+                this.cancelBlinkAllTokenSource.Dispose();
+                this.cancelBlinkAllTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                return this.cancelBlinkAllTokenSource.Token;
+            }
+
+        }
 
         public async UniTaskVoid BlinkAll(CancellationToken ct)
         {
-            var tasks = this.renderers.Select(r => this.blink(r, ct)).ToArray();
-            await UniTask.WhenAll(tasks);
+            var token = this.createNewToken(ct);
+            await UniTask.NextFrame(cancellationToken: token);
+            token.ThrowIfCancellationRequested();
+
+            await UniTask.WaitUntil(
+                () => this.blinkTask.Status != UniTaskStatus.Pending,
+                cancellationToken: token
+            );
+            token.ThrowIfCancellationRequested();
+
+            var tasks = this.renderers.Select(r => this.blink(r, token)).ToArray();
+            this.blinkTask = UniTask.WhenAll(tasks);
+            token.ThrowIfCancellationRequested();
+
+            await this.blinkTask;
         }
 
         private async UniTask blink(Renderer renderer, CancellationToken ct)
         {
             var originalColor = renderer.material.color;
-            for (int i = 0; i < 3; i++)
+            Action<Color> changeColorChecked = (color) =>
             {
-                renderer.material.color = Color.red;
-                await UniTask.WaitForSeconds(0.01f, cancellationToken: ct);
-                renderer.material.color = originalColor;
-                await UniTask.WaitForSeconds(0.01f, cancellationToken: ct);
+                // if the game object is not destroyed
+                if (renderer != null)
+                    renderer.material.color = color;
+            };
+
+            try
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    changeColorChecked(Color.red);
+                    await UniTask.WaitForSeconds(0.03f, cancellationToken: ct);
+                    changeColorChecked(originalColor);
+                    await UniTask.WaitForSeconds(0.03f, cancellationToken: ct);
+                }
+            }
+            finally
+            {
+                changeColorChecked(originalColor);
             }
         }
     }
