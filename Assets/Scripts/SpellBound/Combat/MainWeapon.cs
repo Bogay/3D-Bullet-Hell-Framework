@@ -55,7 +55,15 @@ namespace SpellBound.Combat
                 {
                     Debug.Log("Hit enemy");
                     var controller = evt.contact.GetComponent<EnemyController>();
-                    controller.character.Hurt(this.owner.Power.Value());
+                    if (controller != null)
+                    {
+                        controller.character.Hurt(this.owner.Power.Value());
+                    }
+                    else
+                    {
+                        var bossController = evt.contact.GetComponent<BossEnemyController>();
+                        bossController.character.Hurt(this.owner.Power.Value());
+                    }
                 }
             });
 

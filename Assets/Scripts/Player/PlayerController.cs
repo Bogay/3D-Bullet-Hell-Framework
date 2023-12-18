@@ -4,6 +4,7 @@ using SpellBound.Core;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using Cinemachine;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
@@ -136,9 +137,8 @@ public class PlayerController : MonoBehaviour
     {
         while (!ct.IsCancellationRequested)
         {
-            this.Character.Regen();
-            // delay 1s
-            await UniTask.Delay(1000);
+            this.Character.Regen(5);
+            await UniTask.Delay(TimeSpan.FromSeconds(1));
         }
     }
 

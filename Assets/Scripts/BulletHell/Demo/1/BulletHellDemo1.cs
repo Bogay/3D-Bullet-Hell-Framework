@@ -10,7 +10,7 @@ using Cysharp.Threading.Tasks.Triggers;
 public class BulletHellDemo1 : MonoBehaviour
 {
     [SerializeField]
-    private bool showDemo = false;
+    public bool ShowDemo = false;
     [SerializeField, Range(0, 1)]
     private float lookAtStrenth;
 
@@ -70,7 +70,7 @@ public class BulletHellDemo1 : MonoBehaviour
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
-            showDemo = !showDemo;
+            ShowDemo = !ShowDemo;
     }
 
     private void FixedUpdate()
@@ -79,7 +79,7 @@ public class BulletHellDemo1 : MonoBehaviour
         Vector3 newFoward = Vector3.Slerp(transform.forward, new Vector3(toPlayer.x, 0, toPlayer.z), lookAtStrenth);
         transform.rotation = Quaternion.LookRotation(newFoward, Vector3.up);
 
-        if (showDemo)
+        if (ShowDemo)
         {
             if (timer <= 0)
             {

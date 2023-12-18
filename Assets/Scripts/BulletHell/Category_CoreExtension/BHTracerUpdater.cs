@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -7,6 +8,8 @@ namespace BulletHell3D
 {
     public sealed class BHTracerUpdater : MonoBehaviour, IBHBulletUpdater
     {
+        private Guid groupId;
+
         private class TracerAddon
         {
             // Trail
@@ -199,7 +202,7 @@ namespace BulletHell3D
         */
         private void CreateTracerBullet(BHRenderObject renderObject, Vector3 position, Vector3 forward, float traceSpeed, float timeDelay)
         {
-            BHBullet newBullet = new BHBullet(position, renderObject);
+            BHBullet newBullet = new BHBullet(position, renderObject, this.groupId);
             TracerAddon newAddon = new TracerAddon()
             {
                 tr = trailPool.RequestTrail(),

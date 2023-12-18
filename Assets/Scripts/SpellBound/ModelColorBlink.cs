@@ -54,6 +54,9 @@ namespace SpellBound
 
         private async UniTask blink(Renderer renderer, CancellationToken ct)
         {
+            if (renderer == null)
+                return;
+
             var originalColor = renderer.material.color;
             Action<Color> changeColorChecked = (color) =>
             {

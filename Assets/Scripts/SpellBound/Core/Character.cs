@@ -51,9 +51,9 @@ namespace SpellBound.Core
             this.MP -= mp;
         }
 
-        public void Regen()
+        public void Regen(int amount)
         {
-            this.MP = Mathf.Min(this.MP + 2, this.MaxMP.Value());
+            this.MP = Mathf.Min(this.MP + amount, this.MaxMP.Value());
         }
     }
 }

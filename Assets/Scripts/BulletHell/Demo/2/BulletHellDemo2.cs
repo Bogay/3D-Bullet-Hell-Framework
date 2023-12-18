@@ -1,9 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using BulletHell3D;
 using DG.Tweening;
-using Cysharp.Threading.Tasks.Triggers;
+using Cysharp.Threading.Tasks;
+using System;
+using System.Threading;
+using VContainer;
+using MessagePipe;
 
 public class BulletHellDemo2 : MonoBehaviour
 {
@@ -30,38 +32,63 @@ public class BulletHellDemo2 : MonoBehaviour
     [SerializeField]
     private Ease dropEase;
 
+    private Guid groupId;
+
+    [Inject]
+    private readonly ISubscriber<Guid, CollisionEvent> subscriber;
+
+    private void Start()
+    {
+        this.groupId = Guid.NewGuid();
+        this.subscriber.Subscribe(this.groupId, evt =>
+        {
+            var player = evt.contact.GetComponentInChildren<PlayerController>();
+            if (player != null)
+            {
+                player.Character.Hurt(1);
+            }
+        });
+    }
 
     // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Alpha2))
-            StartCoroutine(Showcase());
+            Showcase().Forget();
     }
 
-    IEnumerator Showcase()
+    public async UniTask Showcase(CancellationToken ct = default)
     {
         GameObject[] objects = new GameObject[patternCount];
+        UniTask[] bulletTasks = new UniTask[patternCount];
         for (int i = 0; i < patternCount; i++)
         {
             objects[i] = new GameObject();
-            objects[i].transform.position = transform.position;
-            objects[i].transform.rotation = Quaternion.Euler(0, rotatePerPattern * i, 0);
+            objects[i].transform.SetPositionAndRotation(
+                transform.position,
+                Quaternion.Euler(0, rotatePerPattern * i, 0)
+            );
             objects[i].transform.localScale = Vector3.zero;
             var updater = objects[i].AddComponent<BHTransformUpdater>();
             updater.SetPattern(pattern);
-            objects[i].transform
+            bulletTasks[i] = objects[i].transform
                 .DOScale(Vector3.one * (minRadius + i * radiusPerPattern), patternExpandTime)
-                .SetLink(objects[i]);
-            yield return new WaitForSeconds(spawnPatternGap);
+                .SetLink(objects[i])
+                .ToUniTask();
+            await UniTask.Delay(TimeSpan.FromSeconds(spawnPatternGap));
         }
-        yield return new WaitForSeconds(waitToDropTime);
+        await UniTask.WhenAll(bulletTasks);
+        await UniTask.Delay(TimeSpan.FromSeconds(waitToDropTime));
+
         for (int i = 0; i < patternCount; i++)
         {
-            objects[i].transform
+            bulletTasks[i] = objects[i].transform
                 .DOMoveY(0, dropTime)
                 .SetEase(dropEase)
-                .SetLink(objects[i]);
-            yield return new WaitForSeconds(spawnPatternGap);
+                .SetLink(objects[i])
+                .ToUniTask();
+            await UniTask.Delay(TimeSpan.FromSeconds(spawnPatternGap));
         }
+        await UniTask.WhenAll(bulletTasks);
     }
 }
