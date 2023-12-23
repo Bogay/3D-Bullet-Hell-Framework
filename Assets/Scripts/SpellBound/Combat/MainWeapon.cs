@@ -55,7 +55,15 @@ namespace SpellBound.Combat
                 {
                     Debug.Log("Hit enemy");
                     var controller = evt.contact.GetComponent<EnemyController>();
-                    controller.character.Hurt(this.owner.Power.Value());
+                    if (controller != null)
+                    {
+                        controller.character.Hurt(this.owner.Power.Value());
+                    }
+                    else
+                    {
+                        var bossController = evt.contact.GetComponent<BossEnemyController>();
+                        bossController.character.Hurt(this.owner.Power.Value());
+                    }
                 }
             });
 
@@ -75,6 +83,8 @@ namespace SpellBound.Combat
 
         private IEnumerator shootCoro(Vector3 forward)
         {
+            forward.Normalize();
+
             var go = new GameObject("Bullet");
             go.transform.position = transform.position + forward * distance;
             go.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);

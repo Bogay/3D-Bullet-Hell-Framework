@@ -4,6 +4,7 @@ using SpellBound.Core;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using Cinemachine;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
@@ -108,7 +109,23 @@ public class PlayerController : MonoBehaviour
         }
 
         if (Input.GetMouseButton(0))
-            this.mainWeapon.Shoot(this.mainCamera.forward);
+        {
+            var distance = 100f;
+            var ray = this.mainCamera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+            Vector3 targetPosition = this.mainWeapon.transform.position + this.mainCamera.forward * distance;
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, 100f))
+            {
+                Debug.Log("hit: " + hit.collider.name);
+                targetPosition = hit.point;
+            }
+
+            Debug.Log($"Shoot: {this.mainWeapon.transform.position} -> {targetPosition}");
+            Debug.DrawLine(this.mainWeapon.transform.position, targetPosition);
+
+            Vector3 forward = targetPosition - this.mainWeapon.transform.position;
+            this.mainWeapon.Shoot(forward);
+        }
         else if (Input.GetMouseButtonDown(1))
             this.secondWeapon.Shoot(this.mainCamera.forward);
 
@@ -120,9 +137,8 @@ public class PlayerController : MonoBehaviour
     {
         while (!ct.IsCancellationRequested)
         {
-            this.Character.Regen();
-            // delay 1s
-            await UniTask.Delay(1000);
+            this.Character.Regen(5);
+            await UniTask.Delay(TimeSpan.FromSeconds(1));
         }
     }
 

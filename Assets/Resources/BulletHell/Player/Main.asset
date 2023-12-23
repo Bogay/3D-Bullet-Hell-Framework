@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7720bba7789842845ba7066684b218fe, type: 3}
   m_Name: Main
   m_EditorClassIdentifier: 
-  _renderObject: {fileID: 11400000, guid: 35d72fd570ee14447ae27f0b18bc0585, type: 2}
+  _renderObject: {fileID: 11400000, guid: ddf5bf0d59f64e24cb94daf5dfe44c0c, type: 2}
   _bullets:
   - {x: 0, y: 0, z: 0}
