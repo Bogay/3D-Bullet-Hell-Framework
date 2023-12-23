@@ -16,6 +16,9 @@ namespace SpellBound.Combat
         public Character character { get; private set; }
 
         [SerializeField]
+        private float searchDistance;
+
+        [SerializeField]
         private GameObject deathVFX;
 
         private ModelColorBlink blink;
@@ -66,7 +69,7 @@ namespace SpellBound.Combat
 
         private void FollowPlayer()
         {
-            var direction = (playerTransform.position - transform.position).normalized;
+            var direction = (playerTransform.position - transform.position + this.calculateSeparation()).normalized;
             var g = this.groundCheck() ? Vector3.zero : Vector3.down * 15;
             controller.Move(direction * moveSpeed * Time.fixedDeltaTime + g * Time.fixedDeltaTime);
             transform.LookAt(this.playerController.transform);
@@ -82,6 +85,22 @@ namespace SpellBound.Combat
                 this.collisionGroups.obstacleMask,
                 QueryTriggerInteraction.Ignore);
             return checkResult;
+        }
+
+        private Vector3 calculateSeparation()
+        {
+            var castResults = Physics.SphereCastAll(transform.position, this.searchDistance, Vector3.up, 0.1f);
+            Vector3 sep = Vector3.zero;
+            foreach (var r in castResults)
+            {
+                if (r.collider.GetComponent<EnemyController>() != null)
+                {
+                    var dir = transform.position - r.transform.position;
+                    var factor = Mathf.Max(10f, this.searchDistance / Mathf.Max(0.1f, dir.magnitude));
+                    sep += dir.normalized * factor;
+                }
+            }
+            return sep;
         }
     }
 }
