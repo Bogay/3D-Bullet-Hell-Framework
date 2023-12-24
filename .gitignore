@@ -41,3 +41,7 @@ sysinfo.txt
 .vscode
 
 Recordings/
+
+# Krita backup files
+*.kra~
+*.png~

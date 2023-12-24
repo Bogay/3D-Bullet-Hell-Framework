@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Bogay.SceneAudioManager;
@@ -43,10 +44,19 @@ namespace SpellBound.Combat
         [Inject]
         private readonly CollisionGroups collisionGroups;
 
-        private void Start()
+        private void Awake()
         {
             this.groupId = System.Guid.NewGuid();
             Debug.Log($"main weapon guid: {this.groupId}");
+            this.skillTrigger = new SkillTrigger<Vector3>(
+                this.skillTriggerSetting,
+                this.owner
+            );
+        }
+
+        private void Start()
+        {
+            var ct = this.GetCancellationTokenOnDestroy();
             this.subscriber.Subscribe(this.groupId, evt =>
             {
                 var layer = 1 << evt.contact.layer;
@@ -65,14 +75,8 @@ namespace SpellBound.Combat
                         bossController.character.Hurt(this.owner.Power.Value());
                     }
                 }
-            });
-
-            this.skillTrigger = new SkillTrigger<Vector3>(
-                this.skillTriggerSetting,
-                this.owner
-            );
-            this.skillTrigger.Subscribe(fwd => StartCoroutine(this.shootCoro(fwd)));
-            var ct = this.GetCancellationTokenOnDestroy();
+            }).AddTo(ct);
+            this.skillTrigger.Subscribe(fwd => StartCoroutine(this.shootCoro(fwd))).AddTo(ct);
             this.skillTrigger.Start(ct);
         }
 
@@ -100,6 +104,11 @@ namespace SpellBound.Combat
                 go.transform.position += forward * (this.speed * Time.deltaTime);
                 yield return null;
             }
+        }
+
+        public IDisposable Subscribe(Action<Vector3> action)
+        {
+            return this.skillTrigger.Subscribe(action);
         }
     }
 }

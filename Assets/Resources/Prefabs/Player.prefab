@@ -1815,7 +1815,7 @@ MonoBehaviour:
   rotateStrenth: 0.2
   jumpHeight: 2.25
   gravity: -15
-  mainWeapon: {fileID: 3847229353622065425}
+  <MainWeapon>k__BackingField: {fileID: 3847229353622065425}
   secondWeapon: {fileID: 1155430110183911641}
   <dash>k__BackingField: {fileID: 1994260028154377325}
   <Character>k__BackingField: {fileID: 11400000, guid: 20e5c6ed53f4eb24bbda3042f690f52f,
