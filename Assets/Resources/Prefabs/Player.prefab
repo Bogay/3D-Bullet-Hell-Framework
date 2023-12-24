@@ -357,6 +357,7 @@ MonoBehaviour:
     <Cost>k__BackingField: 0
   distance: 1
   speed: 5
+  damageNumber: {fileID: 0}
 --- !u!1 &1018318874046876825
 GameObject:
   m_ObjectHideFlags: 0
@@ -1982,6 +1983,8 @@ MonoBehaviour:
     <Cost>k__BackingField: 2
   distance: 0.5
   speed: 45
+  damageNumber: {fileID: 4654183605800298902, guid: c627040d29f28ce45b66498766246655,
+    type: 3}
 --- !u!1 &3828057640460628690
 GameObject:
   m_ObjectHideFlags: 0

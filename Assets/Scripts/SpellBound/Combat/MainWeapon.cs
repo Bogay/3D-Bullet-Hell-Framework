@@ -9,7 +9,6 @@ using SpellBound.Core;
 using UnityEngine;
 using VContainer;
 using Cysharp.Threading.Tasks;
-using System.Threading;
 
 namespace SpellBound.Combat
 {
@@ -31,6 +30,8 @@ namespace SpellBound.Combat
         private float distance;
         [SerializeField]
         private float speed;
+        [SerializeField]
+        private DamageNumber damageNumber;
 
         private System.Guid groupId;
         public float ShootCooldownSeconds { get => this.skillTrigger.Setting.CooldownSeconds; }
@@ -64,6 +65,16 @@ namespace SpellBound.Combat
                 if ((layer & this.collisionGroups.enemyMask) != 0)
                 {
                     Debug.Log("Hit enemy");
+
+                    var num = Instantiate(this.damageNumber);
+                    num.transform.position = new Vector3(
+                        evt.hit.point.x,
+                        evt.hit.collider.bounds.max.y + 3,
+                        evt.hit.point.z
+                    );
+                    num.transform.position += UnityEngine.Random.insideUnitSphere;
+                    num.Value = this.owner.Power.Value();
+
                     var controller = evt.contact.GetComponent<EnemyController>();
                     if (controller != null)
                     {
