@@ -42,15 +42,10 @@ namespace SpellBound.Combat
 
         private async UniTaskVoid clearSkill(float clearTime, int clearFrame, CancellationToken ct)
         {
-            float startTime = Time.realtimeSinceStartup;
-            await UniTask.DelayFrame(clearFrame, cancellationToken: ct);
-            float elapsedTime = Time.realtimeSinceStartup - startTime;
-            clearTime -= elapsedTime;
-
-            if (clearTime > 0)
-            {
-                await UniTask.Delay(TimeSpan.FromSeconds(clearTime), cancellationToken: ct);
-            }
+            await UniTask.WhenAll(
+                UniTask.WaitForSeconds(clearTime, cancellationToken: ct),
+                UniTask.DelayFrame(clearFrame, cancellationToken: ct)
+            );
 
             lock (this.skillArgLock)
             {
@@ -76,7 +71,7 @@ namespace SpellBound.Combat
                 if (!this.canCast())
                 {
                     this.updateTimer();
-                    await UniTask.NextFrame();
+                    await UniTask.NextFrame(ct);
                     continue;
                 }
 
@@ -87,7 +82,7 @@ namespace SpellBound.Combat
                         cast();
                     }
                 }
-                await UniTask.NextFrame();
+                await UniTask.NextFrame(ct);
             }
         }
 

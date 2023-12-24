@@ -1,8 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Cysharp.Threading.Tasks;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -22,14 +19,12 @@ namespace SpellBound
         private readonly Player player;
 
         private PlayerController playerController;
-        private float heat;
         private Color origin;
         private List<Image> images;
         private List<Transform> sideImages;
         private List<Transform> sides;
         private float rotateSpeed;
 
-        const float MAX_HEAT = 100;
         const float MAX_ROTATE_SPEED = 720;
 
         void Start()
@@ -37,11 +32,6 @@ namespace SpellBound
             this.playerController = this.player.GetComponentInParent<PlayerController>();
             Debug.Assert(this.playerController != null);
 
-            this.heat = 0;
-            this.playerController.MainWeapon.Subscribe(_ =>
-            {
-                this.heat = Mathf.Min(this.heat + 10, Crosshair.MAX_HEAT);
-            });
             this.images = GetComponentsInChildren<Image>().ToList();
             Debug.Assert(this.images.Count != 0);
             this.origin = this.images[0].color;
@@ -60,8 +50,7 @@ namespace SpellBound
 
         void Update()
         {
-            this.heat = Mathf.Max(0, this.heat - 20 * Time.deltaTime);
-            float normHeat = this.heat / Crosshair.MAX_HEAT;
+            float normHeat = this.playerController.MainWeapon.HeatNormalized;
 
             foreach (var image in this.images)
             {

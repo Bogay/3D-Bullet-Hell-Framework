@@ -33,6 +33,11 @@ namespace SpellBound.Combat
         [SerializeField]
         private DamageNumber damageNumber;
 
+        public float Heat { get; private set; }
+        public float HeatNormalized { get => this.Heat / MainWeapon.MAX_HEAT; }
+
+        private const float MAX_HEAT = 100;
+
         private System.Guid groupId;
         public float ShootCooldownSeconds { get => this.skillTrigger.Setting.CooldownSeconds; }
         public int Cost { get => this.skillTrigger.Setting.Cost; }
@@ -65,6 +70,7 @@ namespace SpellBound.Combat
                 if ((layer & this.collisionGroups.enemyMask) != 0)
                 {
                     Debug.Log("Hit enemy");
+                    int dmg = this.owner.Power.Value() + Mathf.FloorToInt(this.HeatNormalized * 2.0f);
 
                     var num = Instantiate(this.damageNumber);
                     num.transform.position = new Vector3(
@@ -73,22 +79,27 @@ namespace SpellBound.Combat
                         evt.hit.point.z
                     );
                     num.transform.position += UnityEngine.Random.insideUnitSphere;
-                    num.Value = this.owner.Power.Value();
+                    num.Value = dmg;
 
                     var controller = evt.contact.GetComponent<EnemyController>();
                     if (controller != null)
                     {
-                        controller.character.Hurt(this.owner.Power.Value());
+                        controller.character.Hurt(dmg);
                     }
                     else
                     {
                         var bossController = evt.contact.GetComponent<BossEnemyController>();
-                        bossController.character.Hurt(this.owner.Power.Value());
+                        bossController.character.Hurt(dmg);
                     }
                 }
             }).AddTo(ct);
             this.skillTrigger.Subscribe(fwd => StartCoroutine(this.shootCoro(fwd))).AddTo(ct);
             this.skillTrigger.Start(ct);
+        }
+
+        private void Update()
+        {
+            this.Heat = Mathf.Max(0, this.Heat - 20 * Time.deltaTime);
         }
 
         public void Shoot(Vector3 forward)
@@ -99,6 +110,7 @@ namespace SpellBound.Combat
         private IEnumerator shootCoro(Vector3 forward)
         {
             forward.Normalize();
+            this.Heat = Mathf.Min(this.Heat + 10, MainWeapon.MAX_HEAT);
 
             var go = new GameObject("Bullet");
             go.transform.position = transform.position + forward * distance;
