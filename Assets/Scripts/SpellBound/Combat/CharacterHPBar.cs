@@ -20,7 +20,7 @@ namespace SpellBound.Combat
         private void Start()
         {
             var ct = this.GetCancellationTokenOnDestroy();
-            this.hpSlider.enabled = false;
+            this.hpSlider.gameObject.SetActive(false);
             this.startAsync(ct).Forget();
         }
 
@@ -38,7 +38,7 @@ namespace SpellBound.Combat
             }
 
             this.character = bossEnemyController.character;
-            this.hpSlider.enabled = true;
+            this.hpSlider.gameObject.SetActive(true);
             var cts = CancellationTokenSource.CreateLinkedTokenSource(ct, bossEnemyController.GetCancellationTokenOnDestroy());
             await foreach (var _ in UniTaskAsyncEnumerable.EveryUpdate().WithCancellation(cts.Token))
             {

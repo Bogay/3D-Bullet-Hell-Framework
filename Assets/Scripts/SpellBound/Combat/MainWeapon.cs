@@ -70,7 +70,7 @@ namespace SpellBound.Combat
                 if ((layer & this.collisionGroups.enemyMask) != 0)
                 {
                     Debug.Log("Hit enemy");
-                    int dmg = this.owner.Power.Value() + Mathf.FloorToInt(this.HeatNormalized * 2.0f);
+                    int dmg = Mathf.FloorToInt(this.owner.Power.Value() * (1.2f + this.HeatNormalized));
 
                     var num = Instantiate(this.damageNumber);
                     num.transform.position = new Vector3(

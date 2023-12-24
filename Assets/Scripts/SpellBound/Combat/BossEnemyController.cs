@@ -6,7 +6,6 @@ using Cysharp.Threading.Tasks;
 using SpellBound.Core;
 using UnityEngine;
 using VContainer;
-using VContainer.Unity;
 using System;
 
 namespace SpellBound.Combat
@@ -106,24 +105,14 @@ namespace SpellBound.Combat
         {
             while (!ct.IsCancellationRequested)
             {
-                try
-                {
-                    await this.walkToPlayer(ct);
-                }
-                catch (OperationCanceledException e) when (e.CancellationToken != ct)
-                {
-                    // Debug.Log("walk end");
-                }
+                await this.walkToPlayer(ct);
 
-                if (UnityEngine.Random.Range(0f, 1f) < 0.5f)
-                {
-                    // TODO: animation to warm player
-                    Debug.Log("starting demo3");
+                // TODO: animation to warn player
+                Debug.Log("starting demo3");
+                this.demo3.transform.position = transform.position + Vector3.up * this.demo3Offset;
+                await this.demo3.Showcase(ct);
 
-                    this.demo3.transform.position = transform.position + Vector3.up * this.demo3Offset;
-                    await this.demo3.Showcase(ct);
-                }
-                else if (Vector3.Distance(transform.position, this.playerController.transform.position) < 15f && UnityEngine.Random.Range(0f, 1f) < 0.5f)
+                if (Vector3.Distance(transform.position, this.playerController.transform.position) < 15f && UnityEngine.Random.Range(0f, 1f) < 0.5f)
                 {
                     Debug.Log("starting demo2");
                     this.demo2.transform.position = transform.position + Vector3.up * this.demo2Offset;
@@ -142,19 +131,13 @@ namespace SpellBound.Combat
             {
                 MoveToPlayer();
                 LookAtPlayer();
-                await UniTask.WaitForFixedUpdate(cancellationToken: cts.Token);
-            }
-        }
-
-        private async UniTask emitDemo2(CancellationToken ct)
-        {
-            while (!ct.IsCancellationRequested)
-            {
-                this.demo2.transform.position = transform.position + Vector3.up * this.demo2Offset;
-                await this.demo2.Showcase(ct);
-                await UniTask.Delay(
-                    TimeSpan.FromMilliseconds(UnityEngine.Random.Range(1500, 2000)),
-                    cancellationToken: ct);
+                try
+                {
+                    await UniTask.WaitForFixedUpdate(cts.Token);
+                }
+                catch (OperationCanceledException e) when (e.CancellationToken == cts.Token)
+                {
+                }
             }
         }
     }
