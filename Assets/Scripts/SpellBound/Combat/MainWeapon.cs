@@ -133,5 +133,10 @@ namespace SpellBound.Combat
         {
             return this.skillTrigger.Subscribe(action);
         }
+
+        public IDisposable OnCooldownFinished(Action handler)
+        {
+            return this.skillTrigger.OnCooldownFinished(handler);
+        }
     }
 }

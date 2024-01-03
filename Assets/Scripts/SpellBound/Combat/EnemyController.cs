@@ -21,6 +21,14 @@ namespace SpellBound.Combat
         [SerializeField]
         private GameObject deathVFX;
 
+        [Header("Juice")]
+        [SerializeField]
+        [Range(0.5f, 2f)]
+        private float jumpScale;
+        [SerializeField]
+        [Range(0f, 1f)]
+        private float resumeFactor;
+
         private ModelColorBlink blink;
 
         [Inject]
@@ -43,6 +51,7 @@ namespace SpellBound.Combat
             this.character.OnHurt(_ =>
             {
                 this.blink.BlinkAll(ct).Forget();
+                transform.localScale = new Vector3(1f / this.jumpScale, this.jumpScale, 1);
             });
 
             this.controller = GetComponent<CharacterController>();
@@ -60,6 +69,7 @@ namespace SpellBound.Combat
                 Destroy(gameObject);
             }
 
+            transform.localScale = Vector3.Lerp(transform.localScale, Vector3.one, this.resumeFactor);
         }
 
         void FixedUpdate()

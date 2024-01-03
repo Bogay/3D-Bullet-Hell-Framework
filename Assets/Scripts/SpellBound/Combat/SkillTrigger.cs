@@ -16,6 +16,10 @@ namespace SpellBound.Combat
         private IDisposablePublisher<T> publisher;
         private ISubscriber<T> subscriber;
 
+        private IDisposablePublisher<int> cooldownPublisher;
+        private ISubscriber<int> cooldownSubscriber;
+        private bool isCooldownFinished = false;
+
         private readonly object skillArgLock = new object();
         private T skillArg;
         private bool hasSkillArg;
@@ -29,6 +33,7 @@ namespace SpellBound.Combat
             this.setting = setting;
             this.owner = owner;
             (this.publisher, this.subscriber) = GlobalMessagePipe.CreateEvent<T>();
+            (this.cooldownPublisher, this.cooldownSubscriber) = GlobalMessagePipe.CreateEvent<int>();
             this.hasSkillArg = false;
             this.TriggerTimer = this.Setting.CooldownSeconds;
         }
@@ -62,6 +67,20 @@ namespace SpellBound.Combat
         private void updateTimer()
         {
             this.TriggerTimer = Mathf.Max(this.TriggerTimer - Time.deltaTime, 0f);
+            this.checkCooldown();
+        }
+
+        private void checkCooldown()
+        {
+            if (this.TriggerTimer <= 0f && !this.isCooldownFinished)
+            {
+                this.isCooldownFinished = true;
+                this.cooldownPublisher.Publish(0);
+            }
+            else if (this.TriggerTimer > 0)
+            {
+                this.isCooldownFinished = false;
+            }
         }
 
         private async UniTaskVoid triggerTask(CancellationToken ct)
@@ -125,10 +144,16 @@ namespace SpellBound.Combat
             return this.subscriber.Subscribe(handler);
         }
 
+        public IDisposable OnCooldownFinished(Action handler)
+        {
+            return this.cooldownSubscriber.Subscribe(_ => handler());
+        }
+
         public void Dispose()
         {
             this.publisher?.Dispose();
             this.clearSkillTokenSource?.Dispose();
+            this.cooldownPublisher?.Dispose();
         }
     }
 }

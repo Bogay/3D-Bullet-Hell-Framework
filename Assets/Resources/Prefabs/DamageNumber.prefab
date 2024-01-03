@@ -186,5 +186,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 0.1
-  ttl: 1
+  ttl: 1.5
+  initialScaleMultiplier: 1.5
+  finalScale: 0.5
   Value: 0

@@ -28,11 +28,21 @@ namespace SpellBound.Combat
         [SerializeField]
         private float moveSpeed = .5f;
 
+        [Header("Juice")]
+        [SerializeField]
+        [Range(0.5f, 2f)]
+        private float jumpScale;
+        [SerializeField]
+        [Range(0f, 1f)]
+        private float resumeFactor;
+
         [Header("Bullet Hell")]
         [SerializeField]
         private float demo2Offset = 5;
         [SerializeField]
         private float demo3Offset = 1;
+
+        private Vector3 originalScale = Vector3.one;
 
         private Transform playerTransform;
         private CharacterController controller;
@@ -41,16 +51,20 @@ namespace SpellBound.Combat
         private BulletHellDemo2 demo2;
         private BulletHellDemo3 demo3;
 
-
         void Start()
         {
             this.character = ScriptableObject.Instantiate(this.character);
             this.character.Init();
 
             var ct = this.GetCancellationTokenOnDestroy();
+            this.originalScale = transform.localScale;
             this.character.OnHurt(_ =>
             {
                 this.blink.BlinkAll(ct).Forget();
+                transform.localScale = new Vector3(
+                    this.originalScale.x / this.jumpScale,
+                    this.originalScale.y * this.jumpScale,
+                    this.originalScale.z);
             });
 
             this.controller = GetComponent<CharacterController>();
@@ -71,9 +85,21 @@ namespace SpellBound.Combat
                 SceneAudioManager.instance.PlayByName("EnemyDeath");
                 Destroy(gameObject);
             }
-
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (Input.GetKeyDown(KeyCode.K))
                 this.character.Hurt(9999);
+            if (Input.GetKeyDown(KeyCode.I))
+            {
+                this.demo3.transform.position = transform.position + Vector3.up * this.demo3Offset;
+                this.demo3.Showcase(this.GetCancellationTokenOnDestroy()).Forget();
+            }
+            if (Input.GetKeyDown(KeyCode.U))
+            {
+                this.demo2.transform.position = transform.position + Vector3.up * this.demo2Offset;
+                this.demo2.Showcase(this.GetCancellationTokenOnDestroy()).Forget();
+            }
+#endif
+            transform.localScale = Vector3.Lerp(transform.localScale, this.originalScale, this.resumeFactor);
         }
 
         private void MoveToPlayer()
@@ -118,6 +144,8 @@ namespace SpellBound.Combat
                     this.demo2.transform.position = transform.position + Vector3.up * this.demo2Offset;
                     await this.demo2.Showcase(ct);
                 }
+
+                await UniTask.WaitForSeconds(1, cancellationToken: ct);
             }
         }
 
