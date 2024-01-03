@@ -63,4 +63,20 @@ public class PlayerStatsUI : MonoBehaviour
             await UniTask.NextFrame(ct);
         }
     }
+
+    private async UniTask watchSlider(Slider slider, CancellationToken ct)
+    {
+        Vector3 originalPosition = slider.fillRect.localPosition;
+        var prevValue = slider.value;
+        while (!ct.IsCancellationRequested)
+        {
+            if (slider.value != prevValue)
+            {
+                slider.fillRect.localPosition = originalPosition + Vector3.up * 8;
+            }
+            slider.fillRect.localPosition = Vector3.Lerp(slider.fillRect.localPosition, originalPosition, 0.5f);
+            prevValue = slider.value;
+            await UniTask.NextFrame(ct);
+        }
+    }
 }

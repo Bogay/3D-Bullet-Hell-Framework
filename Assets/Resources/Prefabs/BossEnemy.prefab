@@ -1216,7 +1216,7 @@ MonoBehaviour:
   jumpScale: 1.2
   resumeFactor: 0.5
   demo2Offset: 10
-  demo3Offset: 5
+  demo3Offset: 3
 --- !u!1 &8099966012483314148
 GameObject:
   m_ObjectHideFlags: 0
