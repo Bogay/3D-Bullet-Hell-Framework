@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="Root" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); top: 120px;">
+        <ui:Label tabindex="-1" text="Defeat..." display-tooltip-when-elided="true" enable-rich-text="true" style="-unity-font: resource(&apos;Fonts/Salsa/Salsa-Regular&apos;); -unity-font-definition: initial; font-size: 96px; -unity-text-align: upper-center;" />
+        <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); align-items: center; margin-top: 16px;">
+            <ui:Button text="Restart" display-tooltip-when-elided="true" name="Restart" style="font-size: 48px; width: 400px;" />
+            <ui:Button text="Quit" display-tooltip-when-elided="true" name="Quit" style="font-size: 48px; width: 400px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
