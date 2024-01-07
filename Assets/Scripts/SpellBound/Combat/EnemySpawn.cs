@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Bogay.SceneAudioManager;
 using Cysharp.Threading.Tasks;
 using SpellBound.UI;
 using UnityEngine;
@@ -29,6 +30,9 @@ public class EnemySpawn : MonoBehaviour
 
     private async UniTask startAsync(CancellationToken ct)
     {
+        SceneAudioManager.instance.StopByName("BossBGM");
+        SceneAudioManager.instance.PlayByName("NormalBGM");
+
         string[] dialogue = {
             "Welcome, Elara, to the realm now cloaked in shadows.",
             "Your feeble attempts to reclaim this land shall be in vain.",
@@ -72,6 +76,10 @@ public class EnemySpawn : MonoBehaviour
             "Prepare for your ultimate defeat, for I, the Lich Lord, am now your inevitable end."
         };
         await this.playBossDialogue(dialogue, ct);
+
+        SceneAudioManager.instance.StopByName("NormalBGM");
+        SceneAudioManager.instance.PlayByName("BossBGM");
+        await UniTask.WaitForSeconds(1, cancellationToken: ct);
 
         var go = this.enemyFactory("Boss", new Vector3(0, 10, 0));
         go.GetCancellationTokenOnDestroy().Register(() =>

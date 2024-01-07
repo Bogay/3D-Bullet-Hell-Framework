@@ -1,3 +1,4 @@
+using Bogay.SceneAudioManager;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -8,6 +9,12 @@ namespace SpellBound.UI
     {
         private Button startButton;
         private Button quitButton;
+
+        private void Start()
+        {
+            SceneAudioManager.instance.StopByName("BossBGM");
+            SceneAudioManager.instance.PlayByName("NormalBGM");
+        }
 
         private void OnEnable()
         {
