@@ -16,6 +16,10 @@ namespace SpellBound.Combat
         private IDisposablePublisher<T> publisher;
         private ISubscriber<T> subscriber;
 
+        private IDisposablePublisher<int> cooldownPublisher;
+        private ISubscriber<int> cooldownSubscriber;
+        private bool isCooldownFinished = false;
+
         private readonly object skillArgLock = new object();
         private T skillArg;
         private bool hasSkillArg;
@@ -29,6 +33,7 @@ namespace SpellBound.Combat
             this.setting = setting;
             this.owner = owner;
             (this.publisher, this.subscriber) = GlobalMessagePipe.CreateEvent<T>();
+            (this.cooldownPublisher, this.cooldownSubscriber) = GlobalMessagePipe.CreateEvent<int>();
             this.hasSkillArg = false;
             this.TriggerTimer = this.Setting.CooldownSeconds;
         }
@@ -42,15 +47,10 @@ namespace SpellBound.Combat
 
         private async UniTaskVoid clearSkill(float clearTime, int clearFrame, CancellationToken ct)
         {
-            float startTime = Time.realtimeSinceStartup;
-            await UniTask.DelayFrame(clearFrame, cancellationToken: ct);
-            float elapsedTime = Time.realtimeSinceStartup - startTime;
-            clearTime -= elapsedTime;
-
-            if (clearTime > 0)
-            {
-                await UniTask.Delay(TimeSpan.FromSeconds(clearTime), cancellationToken: ct);
-            }
+            await UniTask.WhenAll(
+                UniTask.WaitForSeconds(clearTime, cancellationToken: ct),
+                UniTask.DelayFrame(clearFrame, cancellationToken: ct)
+            );
 
             lock (this.skillArgLock)
             {
@@ -67,6 +67,20 @@ namespace SpellBound.Combat
         private void updateTimer()
         {
             this.TriggerTimer = Mathf.Max(this.TriggerTimer - Time.deltaTime, 0f);
+            this.checkCooldown();
+        }
+
+        private void checkCooldown()
+        {
+            if (this.TriggerTimer <= 0f && !this.isCooldownFinished)
+            {
+                this.isCooldownFinished = true;
+                this.cooldownPublisher.Publish(0);
+            }
+            else if (this.TriggerTimer > 0)
+            {
+                this.isCooldownFinished = false;
+            }
         }
 
         private async UniTaskVoid triggerTask(CancellationToken ct)
@@ -76,7 +90,7 @@ namespace SpellBound.Combat
                 if (!this.canCast())
                 {
                     this.updateTimer();
-                    await UniTask.NextFrame();
+                    await UniTask.NextFrame(ct);
                     continue;
                 }
 
@@ -87,7 +101,7 @@ namespace SpellBound.Combat
                         cast();
                     }
                 }
-                await UniTask.NextFrame();
+                await UniTask.NextFrame(ct);
             }
         }
 
@@ -130,10 +144,16 @@ namespace SpellBound.Combat
             return this.subscriber.Subscribe(handler);
         }
 
+        public IDisposable OnCooldownFinished(Action handler)
+        {
+            return this.cooldownSubscriber.Subscribe(_ => handler());
+        }
+
         public void Dispose()
         {
             this.publisher?.Dispose();
             this.clearSkillTokenSource?.Dispose();
+            this.cooldownPublisher?.Dispose();
         }
     }
 }

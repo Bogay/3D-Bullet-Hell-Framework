@@ -13,3 +13,4 @@ NYCU 3D Game Programming - 2023 Fall - Final Project
     > Creative Commons Zero 1.0 Universal license
     > 
     > You can use this asset in commercial and free projects without attribution. It is forbidden only to sell an asset separately.
+- BGM: [MaouDamashii](https://maou.audio/)

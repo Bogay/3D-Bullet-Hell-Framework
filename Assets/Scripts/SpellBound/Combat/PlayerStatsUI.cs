@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using SpellBound.Combat;
 using SpellBound.Core;
 using UnityEngine;
@@ -20,8 +22,28 @@ public class PlayerStatsUI : MonoBehaviour
     [SerializeField]
     private MainWeapon weapon;
 
+    [Header("Juice")]
+    [SerializeField]
+    private float jumpScale;
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float resumeFactor;
+
+    private Transform jumpTarget;
+
     [Inject]
     private Character character;
+
+    private void Start()
+    {
+        var ct = this.GetCancellationTokenOnDestroy();
+        this.jumpTarget = this.cooldownImage.transform.parent;
+        this.weapon.OnCooldownFinished(() =>
+        {
+            this.jumpTarget.localScale = Vector3.one * this.jumpScale;
+        }).AddTo(ct);
+        this.updateCooldown(ct).Forget();
+    }
 
     void Update()
     {
@@ -29,6 +51,32 @@ public class PlayerStatsUI : MonoBehaviour
         this.hpSlider.value = this.character.HP;
         this.mpSlider.maxValue = this.character.MaxMP.Value();
         this.mpSlider.value = this.character.MP;
-        this.cooldownImage.fillAmount = 1 - this.weapon.ShootTimer / this.weapon.ShootCooldownSeconds;
+    }
+
+    private async UniTask updateCooldown(CancellationToken ct)
+    {
+        while (!ct.IsCancellationRequested)
+        {
+            var progress = 1 - this.weapon.ShootTimer / this.weapon.ShootCooldownSeconds;
+            this.cooldownImage.fillAmount = progress;
+            this.jumpTarget.localScale = Vector3.Slerp(this.jumpTarget.localScale, Vector3.one, this.resumeFactor);
+            await UniTask.NextFrame(ct);
+        }
+    }
+
+    private async UniTask watchSlider(Slider slider, CancellationToken ct)
+    {
+        Vector3 originalPosition = slider.fillRect.localPosition;
+        var prevValue = slider.value;
+        while (!ct.IsCancellationRequested)
+        {
+            if (slider.value != prevValue)
+            {
+                slider.fillRect.localPosition = originalPosition + Vector3.up * 8;
+            }
+            slider.fillRect.localPosition = Vector3.Lerp(slider.fillRect.localPosition, originalPosition, 0.5f);
+            prevValue = slider.value;
+            await UniTask.NextFrame(ct);
+        }
     }
 }

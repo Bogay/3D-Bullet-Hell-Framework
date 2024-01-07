@@ -357,6 +357,7 @@ MonoBehaviour:
     <Cost>k__BackingField: 0
   distance: 1
   speed: 5
+  damageNumber: {fileID: 0}
 --- !u!1 &1018318874046876825
 GameObject:
   m_ObjectHideFlags: 0
@@ -1766,7 +1767,6 @@ Transform:
   - {fileID: 2912438819074885003}
   - {fileID: 6926558444493293147}
   - {fileID: 2912438817729694371}
-  - {fileID: 5387468584474600370}
   - {fileID: 2446875767817010908}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -1815,7 +1815,7 @@ MonoBehaviour:
   rotateStrenth: 0.2
   jumpHeight: 2.25
   gravity: -15
-  mainWeapon: {fileID: 3847229353622065425}
+  <MainWeapon>k__BackingField: {fileID: 3847229353622065425}
   secondWeapon: {fileID: 1155430110183911641}
   <dash>k__BackingField: {fileID: 1994260028154377325}
   <Character>k__BackingField: {fileID: 11400000, guid: 20e5c6ed53f4eb24bbda3042f690f52f,
@@ -1982,51 +1982,8 @@ MonoBehaviour:
     <Cost>k__BackingField: 2
   distance: 0.5
   speed: 45
---- !u!1 &3828057640460628690
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5387468584474600370}
-  - component: {fileID: 8830245284197109356}
-  m_Layer: 0
-  m_Name: AudioManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5387468584474600370
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3828057640460628690}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2710568487981737405}
-  m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8830245284197109356
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3828057640460628690}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce82340813b0a274abbdd77616b699c7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneClipArray: {fileID: 11400000, guid: c3a82ba58a0ab214d87f2460d06bea32, type: 2}
+  damageNumber: {fileID: 4654183605800298902, guid: c627040d29f28ce45b66498766246655,
+    type: 3}
 --- !u!1 &3949261314712295439
 GameObject:
   m_ObjectHideFlags: 0

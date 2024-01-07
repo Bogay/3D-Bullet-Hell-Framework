@@ -24,10 +24,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField, ShowOnly]
     private float gravity = -15.0f;
 
-    [Space(10)]
-    [Header("Ability")]
-    [SerializeField]
-    private MainWeapon mainWeapon;
+    [field: Space(10)]
+    [field: Header("Ability")]
+    [field: SerializeField]
+    public MainWeapon MainWeapon { get; private set; }
     [SerializeField]
     private MainWeapon secondWeapon;
     [field: SerializeField]
@@ -78,10 +78,15 @@ public class PlayerController : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         mainCamera = Camera.main.transform;
-        Cursor.lockState = CursorLockMode.Locked;
-        this.Character.Init();
 
         var ct = this.GetCancellationTokenOnDestroy();
+        Cursor.lockState = CursorLockMode.Locked;
+        ct.Register(() =>
+        {
+            Cursor.lockState = CursorLockMode.None;
+        });
+        this.Character.Init();
+
         this.CharacterRegen(ct).Forget();
     }
 
@@ -112,7 +117,7 @@ public class PlayerController : MonoBehaviour
         {
             var distance = 100f;
             var ray = this.mainCamera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-            Vector3 targetPosition = this.mainWeapon.transform.position + this.mainCamera.forward * distance;
+            Vector3 targetPosition = this.MainWeapon.transform.position + this.mainCamera.forward * distance;
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 100f))
             {
@@ -120,11 +125,11 @@ public class PlayerController : MonoBehaviour
                 targetPosition = hit.point;
             }
 
-            Debug.Log($"Shoot: {this.mainWeapon.transform.position} -> {targetPosition}");
-            Debug.DrawLine(this.mainWeapon.transform.position, targetPosition);
+            Debug.Log($"Shoot: {this.MainWeapon.transform.position} -> {targetPosition}");
+            Debug.DrawLine(this.MainWeapon.transform.position, targetPosition);
 
-            Vector3 forward = targetPosition - this.mainWeapon.transform.position;
-            this.mainWeapon.Shoot(forward);
+            Vector3 forward = targetPosition - this.MainWeapon.transform.position;
+            this.MainWeapon.Shoot(forward);
         }
         else if (Input.GetMouseButtonDown(1))
             this.secondWeapon.Shoot(this.mainCamera.forward);
