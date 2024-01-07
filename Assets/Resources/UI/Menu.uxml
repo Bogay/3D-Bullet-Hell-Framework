@@ -1,9 +1,9 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="Root" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); align-items: center; margin-top: auto; margin-bottom: auto; top: 20%;">
-        <ui:Label tabindex="-1" text="SpellBound: Rise of the Lich" display-tooltip-when-elided="true" name="Title" style="-unity-font-style: bold; font-size: 48px; padding-bottom: 48px;" />
-        <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
-            <ui:Button text="Start" display-tooltip-when-elided="true" name="Start" style="font-size: 48px;" />
-            <ui:Button text="Quit" display-tooltip-when-elided="true" name="Quit" style="font-size: 48px;" />
+    <ui:VisualElement name="Root" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); align-items: center; margin-top: auto; margin-bottom: auto; top: 20%; align-self: flex-start; left: 80px; -unity-font: resource(&apos;Fonts/Salsa/Salsa-Regular&apos;); -unity-font-definition: initial;">
+        <ui:Label tabindex="-1" text="SpellBound: Rise of the Lich" display-tooltip-when-elided="true" name="Title" style="-unity-font-style: normal; font-size: 96px; padding-bottom: 48px; -unity-font: resource(&apos;Fonts/Salsa/Salsa-Regular&apos;); -unity-font-definition: initial;" />
+        <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); align-items: flex-start; align-self: flex-start; max-width: 800px; min-width: 400px; left: 16px;">
+            <ui:Button text="Start" display-tooltip-when-elided="true" name="Start" style="font-size: 48px; width: 100%;" />
+            <ui:Button text="Quit" display-tooltip-when-elided="true" name="Quit" style="font-size: 48px; width: 100%;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using VContainer;
 using MessagePipe;
+using SpellBound.BulletHell;
 
 public class BulletHellDemo2 : MonoBehaviour
 {
@@ -31,6 +32,8 @@ public class BulletHellDemo2 : MonoBehaviour
     private float dropTime = 1;
     [SerializeField]
     private Ease dropEase;
+    [SerializeField]
+    private GameObject vfxPrefab;
 
     private Guid groupId;
 
@@ -69,7 +72,8 @@ public class BulletHellDemo2 : MonoBehaviour
                 Quaternion.Euler(0, rotatePerPattern * i, 0)
             );
             objects[i].transform.localScale = Vector3.zero;
-            var updater = objects[i].AddComponent<BHTransformUpdater>();
+            var updater = objects[i].AddComponent<BHTransformVFXUpdater>();
+            updater.vfxPrefab = this.vfxPrefab;
             updater.SetPattern(pattern);
             bulletTasks[i] = objects[i].transform
                 .DOScale(Vector3.one * (minRadius + i * radiusPerPattern), patternExpandTime)

@@ -45,3 +45,6 @@ Recordings/
 # Krita backup files
 *.kra~
 *.png~
+
+# Game build dir
+dist/
