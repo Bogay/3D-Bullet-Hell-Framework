@@ -16,6 +16,8 @@ namespace SpellBound.UI
             var uiDocument = GetComponent<UIDocument>();
             restartButton = uiDocument.rootVisualElement.Q("Restart") as Button;
             restartButton.RegisterCallback<ClickEvent>(this.loadStage);
+            quitButton = uiDocument.rootVisualElement.Q("Quit") as Button;
+            quitButton.RegisterCallback<ClickEvent>(_ => Utitlity.QuitGame());
         }
 
         private void OnDisable()
