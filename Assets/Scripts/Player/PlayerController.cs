@@ -78,10 +78,15 @@ public class PlayerController : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         mainCamera = Camera.main.transform;
-        Cursor.lockState = CursorLockMode.Locked;
-        this.Character.Init();
 
         var ct = this.GetCancellationTokenOnDestroy();
+        Cursor.lockState = CursorLockMode.Locked;
+        ct.Register(() =>
+        {
+            Cursor.lockState = CursorLockMode.None;
+        });
+        this.Character.Init();
+
         this.CharacterRegen(ct).Forget();
     }
 

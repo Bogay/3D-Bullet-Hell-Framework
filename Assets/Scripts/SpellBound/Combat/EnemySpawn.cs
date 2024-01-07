@@ -4,6 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using SpellBound.UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VContainer;
 
 public class EnemySpawn : MonoBehaviour
@@ -73,6 +74,10 @@ public class EnemySpawn : MonoBehaviour
         await this.playBossDialogue(dialogue, ct);
 
         var go = this.enemyFactory("Boss", new Vector3(0, 10, 0));
+        go.GetCancellationTokenOnDestroy().Register(() =>
+        {
+            SceneManager.LoadScene("Win");
+        });
     }
 
     private async UniTask playBossDialogue(string[] dialogue, CancellationToken ct)
