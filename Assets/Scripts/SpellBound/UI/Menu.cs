@@ -23,7 +23,7 @@ namespace SpellBound.UI
 
         private void loadStage(ClickEvent _)
         {
-            SceneManager.LoadScene("Stage0");
+            SceneManager.LoadScene("Story");
         }
     }
 }

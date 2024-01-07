@@ -39,6 +39,8 @@ namespace SpellBound.Combat
 
             this.character = bossEnemyController.character;
             this.hpSlider.gameObject.SetActive(true);
+            await UniTask.NextFrame(ct);
+
             var cts = CancellationTokenSource.CreateLinkedTokenSource(ct, bossEnemyController.GetCancellationTokenOnDestroy());
             await foreach (var _ in UniTaskAsyncEnumerable.EveryUpdate().WithCancellation(cts.Token))
             {
