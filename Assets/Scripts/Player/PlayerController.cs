@@ -75,6 +75,8 @@ public class PlayerController : MonoBehaviour
     private CharacterController controller;
     private Transform mainCamera;
 
+    private InputAction attackAction;
+
     private void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -89,6 +91,35 @@ public class PlayerController : MonoBehaviour
         this.Character.Init();
 
         this.CharacterRegen(ct).Forget();
+
+        // Register Input System event
+
+        InputSystem.actions.FindAction("Jump").performed += ctx => jump();
+        InputSystem.actions.FindAction("Cast").performed += ctx => this.secondWeapon.Shoot(this.mainCamera.forward);
+        InputSystem.actions.FindAction("Sprint").performed += ctx => this.dash.Cast(this.moveDirection);
+        InputSystem.actions.FindAction("Move").performed += ctx =>
+        {
+            var v = ctx.ReadValue<Vector2>();
+            rawDirection = new Vector3(v.x, 0, v.y);
+        };
+        InputSystem.actions.FindAction("Move").canceled += ctx =>
+        {
+            rawDirection = Vector3.zero;
+        };
+
+        this.attackAction = InputSystem.actions.FindAction("Attack");
+    }
+
+    private void jump()
+    {
+        if (!canJump)
+        {
+            return;
+        }
+
+        // the square root of H * -2 * G = how much speed needed to reach desired height
+        verticalSpeed = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        jumpCooldown = jumpTimeout;
     }
 
     void Update()
@@ -107,36 +138,29 @@ public class PlayerController : MonoBehaviour
 
     private void DetectKeyDown()
     {
-        if (Keyboard.current.spaceKey.wasPressedThisFrame && canJump)
+        if (this.attackAction.IsPressed())
         {
-            // the square root of H * -2 * G = how much speed needed to reach desired height
-            verticalSpeed = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            jumpCooldown = jumpTimeout;
+            this.attack();
+        }
+    }
+
+    private void attack()
+    {
+        var distance = 100f;
+        var ray = this.mainCamera.GetComponent<Camera>().ScreenPointToRay(Mouse.current.position.ReadValue());
+        Vector3 targetPosition = this.MainWeapon.transform.position + this.mainCamera.forward * distance;
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, 100f))
+        {
+            Debug.Log("hit: " + hit.collider.name);
+            targetPosition = hit.point;
         }
 
-        if (Mouse.current.leftButton.isPressed)
-        {
-            var distance = 100f;
-            var ray = this.mainCamera.GetComponent<Camera>().ScreenPointToRay(Mouse.current.position.ReadValue());
-            Vector3 targetPosition = this.MainWeapon.transform.position + this.mainCamera.forward * distance;
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, 100f))
-            {
-                Debug.Log("hit: " + hit.collider.name);
-                targetPosition = hit.point;
-            }
+        Debug.Log($"Shoot: {this.MainWeapon.transform.position} -> {targetPosition}");
+        Debug.DrawLine(this.MainWeapon.transform.position, targetPosition);
 
-            Debug.Log($"Shoot: {this.MainWeapon.transform.position} -> {targetPosition}");
-            Debug.DrawLine(this.MainWeapon.transform.position, targetPosition);
-
-            Vector3 forward = targetPosition - this.MainWeapon.transform.position;
-            this.MainWeapon.Shoot(forward);
-        }
-        else if (Mouse.current.rightButton.wasPressedThisFrame)
-            this.secondWeapon.Shoot(this.mainCamera.forward);
-
-        if (Keyboard.current.leftShiftKey.wasPressedThisFrame)
-            this.dash.Cast(this.moveDirection);
+        Vector3 forward = targetPosition - this.MainWeapon.transform.position;
+        this.MainWeapon.Shoot(forward);
     }
 
     private async UniTaskVoid CharacterRegen(CancellationToken ct)
@@ -148,18 +172,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void DetectKey()
-    {
-        rawDirection = Vector3.zero;
-        if (Keyboard.current.wKey.isPressed)
-            rawDirection += Vector3.forward;
-        if (Keyboard.current.sKey.isPressed)
-            rawDirection += Vector3.back;
-        if (Keyboard.current.aKey.isPressed)
-            rawDirection += Vector3.left;
-        if (Keyboard.current.dKey.isPressed)
-            rawDirection += Vector3.right;
-    }
+    private void DetectKey() { }
 
     private void GroundCheck()
     {
