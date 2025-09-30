@@ -4,6 +4,7 @@ using UnityEngine;
 using BulletHell3D;
 using DG.Tweening;
 using VContainer;
+using UnityEngine.InputSystem;
 
 public class BulletHellDemo5 : MonoBehaviour
 {
@@ -31,7 +32,7 @@ public class BulletHellDemo5 : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha5))
+        if (Keyboard.current.digit5Key.wasPressedThisFrame)
             StartCoroutine(Showcase());
     }
 

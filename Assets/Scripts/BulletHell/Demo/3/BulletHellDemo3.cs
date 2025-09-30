@@ -9,6 +9,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using System;
 using SpellBound.Combat;
+using UnityEngine.InputSystem;
 
 public class BulletHellDemo3 : MonoBehaviour
 {
@@ -72,7 +73,7 @@ public class BulletHellDemo3 : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha3))
+        if (Keyboard.current.digit3Key.wasPressedThisFrame)
             Showcase(this.GetCancellationTokenOnDestroy()).Forget();
     }
 

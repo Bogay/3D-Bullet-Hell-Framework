@@ -7,6 +7,7 @@ using System.Threading;
 using VContainer;
 using MessagePipe;
 using SpellBound.BulletHell;
+using UnityEngine.InputSystem;
 
 public class BulletHellDemo2 : MonoBehaviour
 {
@@ -56,7 +57,7 @@ public class BulletHellDemo2 : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha2))
+        if (Keyboard.current.digit2Key.wasPressedThisFrame)
             Showcase().Forget();
     }
 

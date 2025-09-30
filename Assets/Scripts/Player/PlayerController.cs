@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using Cinemachine;
 using System;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -106,17 +107,17 @@ public class PlayerController : MonoBehaviour
 
     private void DetectKeyDown()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && canJump)
+        if (Keyboard.current.spaceKey.wasPressedThisFrame && canJump)
         {
             // the square root of H * -2 * G = how much speed needed to reach desired height
             verticalSpeed = Mathf.Sqrt(jumpHeight * -2f * gravity);
             jumpCooldown = jumpTimeout;
         }
 
-        if (Input.GetMouseButton(0))
+        if (Mouse.current.leftButton.isPressed)
         {
             var distance = 100f;
-            var ray = this.mainCamera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+            var ray = this.mainCamera.GetComponent<Camera>().ScreenPointToRay(Mouse.current.position.ReadValue());
             Vector3 targetPosition = this.MainWeapon.transform.position + this.mainCamera.forward * distance;
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 100f))
@@ -131,10 +132,10 @@ public class PlayerController : MonoBehaviour
             Vector3 forward = targetPosition - this.MainWeapon.transform.position;
             this.MainWeapon.Shoot(forward);
         }
-        else if (Input.GetMouseButtonDown(1))
+        else if (Mouse.current.rightButton.wasPressedThisFrame)
             this.secondWeapon.Shoot(this.mainCamera.forward);
 
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Keyboard.current.leftShiftKey.wasPressedThisFrame)
             this.dash.Cast(this.moveDirection);
     }
 
@@ -150,13 +151,13 @@ public class PlayerController : MonoBehaviour
     private void DetectKey()
     {
         rawDirection = Vector3.zero;
-        if (Input.GetKey(KeyCode.W))
+        if (Keyboard.current.wKey.isPressed)
             rawDirection += Vector3.forward;
-        if (Input.GetKey(KeyCode.S))
+        if (Keyboard.current.sKey.isPressed)
             rawDirection += Vector3.back;
-        if (Input.GetKey(KeyCode.A))
+        if (Keyboard.current.aKey.isPressed)
             rawDirection += Vector3.left;
-        if (Input.GetKey(KeyCode.D))
+        if (Keyboard.current.dKey.isPressed)
             rawDirection += Vector3.right;
     }
 
@@ -189,7 +190,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             // HACK: LeftShift + Space cause keyboard ghosting... crap.
-            if (Input.GetKey(KeyCode.Mouse2))
+            if (Mouse.current.middleButton.isPressed)
                 horizontalSpeed = Mathf.Min(horizontalSpeed + acclerationStrenth * Time.fixedDeltaTime, sprintSpeed);
             else
             {

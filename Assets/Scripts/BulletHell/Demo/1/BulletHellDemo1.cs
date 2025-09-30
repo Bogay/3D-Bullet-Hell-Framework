@@ -6,6 +6,7 @@ using VContainer;
 using MessagePipe;
 using System;
 using Cysharp.Threading.Tasks.Triggers;
+using UnityEngine.InputSystem;
 
 public class BulletHellDemo1 : MonoBehaviour
 {
@@ -69,7 +70,7 @@ public class BulletHellDemo1 : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (Keyboard.current.digit1Key.wasPressedThisFrame)
             ShowDemo = !ShowDemo;
     }
 

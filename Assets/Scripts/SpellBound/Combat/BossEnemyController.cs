@@ -7,6 +7,7 @@ using SpellBound.Core;
 using UnityEngine;
 using VContainer;
 using System;
+using UnityEngine.InputSystem;
 
 namespace SpellBound.Combat
 {
@@ -86,14 +87,14 @@ namespace SpellBound.Combat
                 Destroy(gameObject);
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (Input.GetKeyDown(KeyCode.K))
+            if (Keyboard.current.kKey.wasPressedThisFrame)
                 this.character.Hurt(9999);
-            if (Input.GetKeyDown(KeyCode.I))
+            if (Keyboard.current.iKey.wasPressedThisFrame)
             {
                 this.demo3.transform.position = transform.position + Vector3.up * this.demo3Offset;
                 this.demo3.Showcase(this.GetCancellationTokenOnDestroy()).Forget();
             }
-            if (Input.GetKeyDown(KeyCode.U))
+            if (Keyboard.current.uKey.wasPressedThisFrame)
             {
                 this.demo2.transform.position = transform.position + Vector3.up * this.demo2Offset;
                 this.demo2.Showcase(this.GetCancellationTokenOnDestroy()).Forget();
