@@ -1,0 +1,94 @@
+classDiagram
+  class BHManager {
+    +AddUpdatable(IBHUpdater)
+    +RemoveUpdatable(IBHUpdater)
+  }
+
+  class BHRenderObject {
+    +mesh: Mesh
+    +material: Material
+    +radius: float
+  }
+
+  class BHRenderGroup {
+    +BHRenderGroup(BHRenderObject)
+    +SetBulletRenderData(Vector3, Color?)
+    +FinalizeBatchedRenderData()
+    +InvalidateOldBatchedRenderData()
+  }
+
+  class BHTransformUpdater {
+    +groupId: Guid
+    +bullets: List<BHBullet>
+    +localPos: List<Vector3>
+    +canSetPattern: bool
+    +mainPattern: BHPattern
+    +Start()
+    +InitUpdater()
+    +UpdateBullets(float)
+    +RemoveBullets()
+    +DestroyUpdater()
+    +SetPattern(pattern: BHPattern)
+  }
+
+  class IBHUpdater {
+    <<interface>>
+    +InitUpdater()
+    +DestroyUpdater()
+  }
+
+  class IBHBulletUpdater {
+    <<interface>>
+    +bullets: List<BHBullet>
+    +UpdateBullets(float)
+    +RemoveBullets()
+  }
+
+  class BHUpdaterHelper {
+    +DefaultInit(IBHBulletUpdater)
+    +DefaultRemoveBullets(IBHBulletUpdater, localPos: List<Vector3>)
+    +DefaultDestroy(IBHBulletUpdater)
+  }
+
+  class BHBullet {
+    +position: Vector3
+    +renderObject
+    +groupId: Guid
+    +SetPosition(Vector3)
+  }
+
+  class BHPattern {
+    +bullets: List<Vector3>
+    +renderObject
+  }
+
+  class BHHelper
+
+  class BHExceptionRaiser {
+    +RaiseException(BHException)
+  }
+
+  class BHException {
+    +SetupAfterInitialization: string
+  }
+
+  class BHParticlePool {
+    -psPreset: GameObject
+    -psQueue: Queue<ParticleSystem>
+  }
+
+  BHBullet --> BHRenderObject
+  IBHUpdater <|-- IBHBulletUpdater
+  IBHBulletUpdater --> BHBullet
+  BHTransformUpdater --> BHUpdaterHelper
+  BHTransformUpdater --> BHBullet
+  BHTransformUpdater --> BHPattern
+  BHTransformUpdater --> BHHelper
+  BHTransformUpdater --> BHExceptionRaiser
+  BHTransformUpdater --|> IBHBulletUpdater
+  BHExceptionRaiser --> BHException
+  BHRenderGroup --> BHRenderObject
+  BHManager --> BHRenderGroup
+  BHManager --> BHRenderObject
+  BHManager --> IBHUpdater
+  BHManager --> BHParticlePool

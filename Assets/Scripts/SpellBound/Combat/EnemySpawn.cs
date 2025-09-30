@@ -57,7 +57,7 @@ public class EnemySpawn : MonoBehaviour
             go.GetCancellationTokenOnDestroy().Register(() =>
             {
                 this.deadCount++;
-                if (this.deadCount == 5)
+                if (this.deadCount == 20)
                 {
                     this.spawnBoss(ct).Forget();
                 }

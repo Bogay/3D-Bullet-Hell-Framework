@@ -19,7 +19,7 @@ namespace SpellBound
 
         void FixedUpdate()
         {
-            this.vfx.SetVector3("Velocity", (this.lastPosition - transform.position));
+            this.vfx.SetVector3("Velocity", this.lastPosition - transform.position);
             this.vfx.SetVector3("Position", transform.position);
             this.lastPosition = transform.position;
         }

@@ -16,7 +16,7 @@ public class BulletHellLifetimeScope : LifetimeScope
         {
             return go =>
             {
-                BHTracerUpdater updater = go.AddComponent<BHTracerUpdater>();
+                var updater = go.AddComponent<BHTracerUpdater>();
                 container.Inject(updater);
                 updater.InitUpdater();
                 return updater;
