@@ -70,9 +70,9 @@ namespace SpellBound.Combat
             this.controller = GetComponent<CharacterController>();
             this.playerTransform = playerController.GetComponent<Transform>();
             this.blink = GetComponent<ModelColorBlink>();
-            this.demo1 = FindObjectOfType<BulletHellDemo1>();
-            this.demo2 = FindObjectOfType<BulletHellDemo2>();
-            this.demo3 = FindObjectOfType<BulletHellDemo3>();
+            this.demo1 = FindFirstObjectByType<BulletHellDemo1>();
+            this.demo2 = FindFirstObjectByType<BulletHellDemo2>();
+            this.demo3 = FindFirstObjectByType<BulletHellDemo3>();
 
             this.startAsync(ct).Forget();
         }

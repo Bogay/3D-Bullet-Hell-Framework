@@ -29,7 +29,7 @@ namespace SpellBound.Combat
             BossEnemyController bossEnemyController = null;
             while (!ct.IsCancellationRequested)
             {
-                bossEnemyController = FindObjectOfType<BossEnemyController>();
+                bossEnemyController = FindFirstObjectByType<BossEnemyController>();
                 if (bossEnemyController != null)
                 {
                     break;
